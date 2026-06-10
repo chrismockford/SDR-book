@@ -135,7 +135,11 @@
       flex-shrink: 0;
       position: sticky;
       top: 72px;
+      max-height: calc(100vh - 88px);
+      overflow-y: auto;
+      scrollbar-width: none;
     }
+    .sidebar-left::-webkit-scrollbar { display: none; }
 
     .profile-link {
       display: flex; align-items: center; gap: 10px;
@@ -481,7 +485,11 @@
       flex-shrink: 0;
       position: sticky;
       top: 72px;
+      max-height: calc(100vh - 88px);
+      overflow-y: auto;
+      scrollbar-width: none;
     }
+    .sidebar-right::-webkit-scrollbar { display: none; }
 
     .widget { margin-bottom: 20px; }
 
