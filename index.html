@@ -1107,7 +1107,7 @@ Yeah. All of that. Before. You. Dial. 👇</div>
           <div>
             <div class="post-author">Sales Automation</div>
             <div class="post-meta">
-              Just now <span class="dot">•</span> 🌐
+              May 15 at 11:20 AM <span class="dot">•</span> 🌐
             </div>
           </div>
         </div>
@@ -1469,7 +1469,7 @@ Your entire pipeline view will never be the same. We're genuinely not being dram
           <div class="post-avatar" style="background:linear-gradient(135deg,#4267B2,#1d3461)">🤖</div>
           <div>
             <div class="post-author">Sales Automation</div>
-            <div class="post-meta">Just now <span class="dot">•</span> 🌐</div>
+            <div class="post-meta">April 23 at 2:06 PM <span class="dot">•</span> 🌐</div>
           </div>
         </div>
         <div class="post-more">···</div>
@@ -1756,7 +1756,7 @@ The era of leads silently falling through the cracks is officially OVER. 👇</d
           <div class="post-avatar" style="background:linear-gradient(135deg,#4267B2,#1d3461)">🤖</div>
           <div>
             <div class="post-author">Sales Automation</div>
-            <div class="post-meta">Just now <span class="dot">•</span> 🌐</div>
+            <div class="post-meta">April 14 at 7:52 AM <span class="dot">•</span> 🌐</div>
           </div>
         </div>
         <div class="post-more">···</div>
@@ -2133,29 +2133,31 @@ That's ~46% fewer credits and significantly fewer failed runs across every singl
 
   /* ── Render contacts ── */
   const contacts = [
-    { name: "The CRM",            emoji: "🤖", color: "#3949ab", status: "online",  detail: "" },
-    { name: "Your SDR Manager",   emoji: "👔", color: "#1565c0", status: "online",  detail: "Active now 👀" },
-    { name: "Q4 Pipeline",        emoji: "📊", color: "#2e7d32", status: "online",  detail: "Surprisingly healthy" },
-    { name: "LinkedIn Inbox",     emoji: "💼", color: "#0277bd", status: "online",  detail: "847 unread" },
-    { name: "Quota Attainment",   emoji: "🎯", color: "#b71c1c", status: "offline", detail: "Last seen: Q1" },
-    { name: "The Spreadsheet",    emoji: "📋", color: "#4e342e", status: "offline", detail: "Last seen: 2019" },
-    { name: "Discovery Call",     emoji: "📞", color: "#546e7a", status: "offline", detail: "No-showed" },
-    { name: "Monday Meeting",     emoji: "😰", color: "#37474f", status: "offline", detail: "5 days ago" },
-    { name: "End of Quarter",     emoji: "🔥", color: "#e65100", status: "online",  detail: "Coming fast" },
-    { name: "Cold Email Template",emoji: "✍️", color: "#4a148c", status: "offline", detail: "Unread by everyone" },
+    { name: "Chris Mockford",      emoji: "👋", color: "#1565c0", status: "online",  detail: "Active now",          slackUrl: "https://employmenthero.slack.com/messages/U07UQSRLHA4" },
+    { name: "Cara Ng",             emoji: "⚡", color: "#6a1b9a", status: "online",  detail: "Building things",     slackUrl: "https://employmenthero.slack.com/messages/U058T88F6MU" },
+    { name: "Claire Lee",          emoji: "🛡️", color: "#2e7d32", status: "online",  detail: "Fixing things",       slackUrl: "https://employmenthero.slack.com/messages/U087QGVMUN5" },
+    { name: "The CRM",             emoji: "🤖", color: "#3949ab", status: "online",  detail: "" },
+    { name: "Your SDR Manager",    emoji: "👔", color: "#37474f", status: "online",  detail: "Active now 👀" },
+    { name: "Quota Attainment",    emoji: "🎯", color: "#b71c1c", status: "offline", detail: "Last seen: Q1" },
+    { name: "The Spreadsheet",     emoji: "📋", color: "#4e342e", status: "offline", detail: "Last seen: 2019" },
+    { name: "Monday Meeting",      emoji: "😰", color: "#546e7a", status: "offline", detail: "5 days ago" },
+    { name: "Cold Email Template", emoji: "✍️", color: "#4a148c", status: "offline", detail: "Unread by everyone" },
+    { name: "End of Quarter",      emoji: "🔥", color: "#e65100", status: "online",  detail: "Coming fast" },
   ];
 
   const list = document.getElementById('contacts-list');
   contacts.forEach(c => {
+    const tag = c.slackUrl ? 'a' : 'div';
+    const href = c.slackUrl ? `href="${c.slackUrl}" target="_blank"` : '';
     list.innerHTML += `
-      <div class="contact-item">
+      <${tag} class="contact-item" ${href}>
         <div class="contact-avatar" style="background:${c.color}">
           ${c.emoji}
           <div class="status-dot ${c.status}"></div>
         </div>
         <span class="contact-name">${c.name}</span>
         ${c.detail ? `<span class="contact-detail">${c.detail}</span>` : ''}
-      </div>`;
+      </${tag}>`;
   });
 
   /* ── Nav button active state ── */
