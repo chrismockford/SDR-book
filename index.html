@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDR-book</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      color: #1c1e21;
+      padding-top: 56px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ── HEADER ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: 56px;
+      background: #4267B2;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px;
+      z-index: 200;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 8px; }
+
+    .logo {
+      color: white;
+      font-size: 30px;
+      font-weight: 900;
+      font-style: italic;
+      font-family: Georgia, "Times New Roman", serif;
+      letter-spacing: -2px;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .search-wrap {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 20px;
+      padding: 8px 14px;
+      cursor: text;
+    }
+    .search-wrap:hover { background: rgba(255,255,255,0.26); }
+    .search-input {
+      background: none; border: none; outline: none;
+      color: white; font-size: 14px; width: 200px;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.75); }
+    .search-icon { font-size: 14px; opacity: 0.85; }
+
+    .topbar-nav {
+      display: flex; align-items: center; gap: 4px;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+
+    .nav-btn {
+      background: none; border: none;
+      color: rgba(255,255,255,0.7);
+      padding: 6px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      transition: background 0.15s, color 0.15s;
+      min-width: 80px;
+      border-bottom: 3px solid transparent;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+    .nav-btn.active { color: white; border-bottom-color: white; border-radius: 8px 8px 0 0; }
+    .nav-btn .icon { font-size: 22px; line-height: 1; }
+
+    .topbar-right { display: flex; align-items: center; gap: 6px; }
+
+    .hdr-btn {
+      background: rgba(255,255,255,0.18);
+      border: none; border-radius: 50%;
+      width: 40px; height: 40px;
+      color: white; font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .hdr-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .hdr-badge {
+      position: absolute; top: -2px; right: -2px;
+      background: #FA383E; color: white;
+      border-radius: 10px; font-size: 10px; font-weight: 700;
+      min-width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 4px;
+      border: 2px solid #4267B2;
+    }
+
+    .user-chip {
+      background: rgba(255,255,255,0.18);
+      border: none; border-radius: 20px;
+      padding: 4px 10px 4px 6px;
+      color: white; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      transition: background 0.15s;
+    }
+    .user-chip:hover { background: rgba(255,255,255,0.3); }
+    .user-chip-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #1d3461;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+
+    /* ── LAYOUT ── */
+    .layout {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      gap: 20px;
+      padding: 16px;
+      align-items: flex-start;
+    }
+
+    /* ── LEFT SIDEBAR ── */
+    .sidebar-left {
+      width: 270px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 72px;
+    }
+
+    .profile-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 4px;
+    }
+    .profile-link:hover { background: #e4e6ea; }
+
+    .profile-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #4267B2, #1d3461);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .profile-name { font-weight: 700; font-size: 15px; }
+
+    .sb-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1c1e21;
+    }
+    .sb-link:hover { background: #e4e6ea; }
+
+    .sb-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+
+    .sb-badge {
+      margin-left: auto;
+      background: #FA383E; color: white;
+      border-radius: 10px; font-size: 11px; font-weight: 700;
+      min-width: 20px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 5px;
+    }
+
+    .sb-divider { height: 1px; background: #dadde1; margin: 10px 0; }
+
+    .sb-section-title {
+      font-size: 17px; font-weight: 700;
+      color: #1c1e21; padding: 4px 8px 6px;
+    }
+
+    .see-more-btn {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #65676b; font-weight: 600; font-size: 14px;
+      transition: background 0.15s;
+    }
+    .see-more-btn:hover { background: #e4e6ea; }
+    .see-more-chevron {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #e4e6ea;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    /* ── FEED ── */
+    .feed {
+      flex: 1;
+      min-width: 0;
+      max-width: 500px;
+    }
+
+    /* Create post */
+    .create-post {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .create-top {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px;
+    }
+    .mini-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #4267B2, #1d3461);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .create-input-fake {
+      flex: 1;
+      background: #f0f2f5;
+      border-radius: 20px;
+      padding: 10px 16px;
+      font-size: 16px;
+      color: #65676b;
+      cursor: pointer;
+      user-select: none;
+    }
+    .create-input-fake:hover { background: #e4e6ea; }
+    .create-divider { height: 1px; background: #dadde1; margin: 4px 0; }
+    .create-actions { display: flex; }
+    .create-action {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700; font-size: 13px; color: #65676b;
+      transition: background 0.15s;
+    }
+    .create-action:hover { background: #f0f2f5; }
+
+    /* ── POST CARD ── */
+    .post-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 16px;
+      overflow: visible;
+    }
+
+    .post-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 12px 16px 0;
+    }
+    .post-header-left { display: flex; gap: 10px; }
+
+    .post-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0; cursor: pointer;
+    }
+
+    .post-author {
+      font-weight: 700; font-size: 15px;
+      cursor: pointer; color: #050505;
+    }
+    .post-author:hover { text-decoration: underline; }
+
+    .post-meta {
+      font-size: 13px; color: #65676b;
+      display: flex; align-items: center; gap: 4px; margin-top: 1px;
+    }
+    .post-meta .dot { font-size: 8px; }
+
+    .post-more {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: #65676b; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .post-more:hover { background: #f0f2f5; }
+
+    .post-text {
+      padding: 10px 16px 12px;
+      font-size: 15px; line-height: 1.5; color: #050505;
+      white-space: pre-wrap;
+    }
+
+    /* Link preview card */
+    .link-card {
+      border: 1px solid #dadde1;
+      overflow: hidden;
+      display: block;
+      cursor: pointer;
+      transition: filter 0.15s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .link-card:hover { filter: brightness(0.97); }
+
+    .link-card-img {
+      width: 100%;
+      display: block;
+    }
+
+    .link-card-body {
+      padding: 10px 12px;
+      background: #f0f2f5;
+    }
+    .link-card-domain {
+      font-size: 12px; color: #65676b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+    .link-card-title {
+      font-weight: 700; font-size: 16px;
+      color: #1c1e21; line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .link-card-desc { font-size: 14px; color: #65676b; line-height: 1.4; }
+
+    /* Post stats bar */
+    .post-stats {
+      padding: 8px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 14px; color: #65676b;
+      cursor: pointer;
+    }
+    .post-stats-left { display: flex; align-items: center; gap: 6px; }
+    .reaction-stack { display: flex; }
+    .reaction-circle {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      background: white;
+      border: 1.5px solid white;
+      margin-left: -4px;
+    }
+    .reaction-circle:first-child { margin-left: 0; }
+    .post-stats-left span { margin-left: 2px; }
+    .post-stats-right { display: flex; gap: 12px; }
+    .post-stats-right span:hover { text-decoration: underline; cursor: pointer; }
+
+    /* Divider */
+    .post-divider { height: 1px; background: #dadde1; margin: 0 16px; }
+
+    /* Action buttons */
+    .post-actions {
+      display: flex;
+      padding: 4px 8px;
+    }
+
+    .action-btn {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700; font-size: 14px; color: #65676b;
+      transition: background 0.15s;
+      position: relative;
+      border: none; background: none;
+      user-select: none;
+    }
+    .action-btn:hover { background: #f0f2f5; }
+    .action-btn .btn-icon { font-size: 20px; }
+    .action-btn.is-liked { color: #4267B2; }
+    .action-btn.is-liked .like-icon::after { content: "👍"; }
+
+    /* Reaction picker tooltip */
+    .reaction-picker {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: -10px;
+      background: white;
+      border-radius: 30px;
+      padding: 8px 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      display: flex; gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(6px) scale(0.95);
+      transition: opacity 0.18s, transform 0.18s;
+      z-index: 50;
+      white-space: nowrap;
+    }
+    .action-btn:hover .reaction-picker {
+      opacity: 1; pointer-events: auto; transform: translateY(0) scale(1);
+    }
+    .r-emoji {
+      font-size: 30px; cursor: pointer;
+      transition: transform 0.15s;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .r-emoji:hover { transform: scale(1.4) translateY(-6px); }
+    .r-label {
+      font-size: 10px; font-weight: 700; color: #1c1e21;
+      opacity: 0; transition: opacity 0.1s;
+      text-align: center;
+    }
+    .r-emoji:hover .r-label { opacity: 1; }
+
+    /* Comments */
+    .comments-section { padding: 8px 16px 16px; }
+
+    .comment-row {
+      display: flex; gap: 8px;
+      margin-bottom: 8px;
+    }
+    .comment-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .comment-body { flex: 1; min-width: 0; }
+    .comment-bubble {
+      background: #f0f2f5;
+      border-radius: 18px;
+      padding: 8px 12px;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .comment-name {
+      font-weight: 700; font-size: 13px;
+      cursor: pointer; display: block; margin-bottom: 1px;
+    }
+    .comment-name:hover { text-decoration: underline; }
+    .comment-text { font-size: 14px; line-height: 1.4; }
+
+    .comment-meta {
+      display: flex; align-items: center; gap: 10px;
+      padding: 3px 10px 0;
+      font-size: 12px; font-weight: 700; color: #65676b;
+    }
+    .comment-meta-btn { cursor: pointer; }
+    .comment-meta-btn:hover { text-decoration: underline; }
+    .comment-time { font-weight: 400; }
+
+    .comment-reaction-chip {
+      display: flex; align-items: center; gap: 3px;
+      background: white; border-radius: 12px;
+      padding: 2px 6px; margin-top: 3px;
+      margin-left: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      font-size: 12px; cursor: pointer;
+      display: inline-flex;
+    }
+
+    .replies { margin-left: 40px; margin-top: 6px; }
+
+    .comment-input-row {
+      display: flex; gap: 8px; align-items: center; margin-top: 8px;
+    }
+    .comment-input-fake {
+      flex: 1;
+      background: #f0f2f5; border-radius: 20px;
+      padding: 9px 16px; font-size: 14px; color: #65676b;
+      cursor: text;
+    }
+    .comment-input-fake:hover { background: #e4e6ea; }
+
+    /* ── RIGHT SIDEBAR ── */
+    .sidebar-right {
+      width: 360px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 72px;
+    }
+
+    .widget { margin-bottom: 20px; }
+
+    .widget-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .widget-title { font-size: 17px; font-weight: 700; color: #1c1e21; }
+    .widget-link { font-size: 14px; color: #4267B2; cursor: pointer; }
+    .widget-link:hover { text-decoration: underline; }
+    .widget-icons { display: flex; gap: 4px; }
+    .widget-icon-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #e4e6ea;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .widget-icon-btn:hover { background: #d8dadf; }
+
+    /* Stories grid */
+    .stories-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      margin-bottom: 4px;
+    }
+    .story-card {
+      border-radius: 12px; overflow: hidden;
+      cursor: pointer; position: relative;
+      height: 135px;
+      transition: opacity 0.15s;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .story-card:hover { opacity: 0.9; }
+    .story-card.add-story {
+      background: #f0f2f5; border: 1px solid #dadde1;
+      align-items: center; justify-content: flex-end;
+    }
+    .story-add-circle {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #4267B2;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: white; margin-bottom: 4px;
+    }
+    .story-add-label {
+      font-size: 12px; font-weight: 700; text-align: center;
+      padding: 0 4px 10px; color: #1c1e21;
+    }
+    .story-avatar-pin {
+      position: absolute; top: 8px; left: 8px;
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 3px solid #4267B2;
+      background: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .story-name-label {
+      font-size: 12px; font-weight: 700; color: white;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      padding: 6px 6px 8px; line-height: 1.3;
+    }
+
+    /* Events/birthdays widget */
+    .events-card {
+      background: white; border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .event-row {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 4px 0; font-size: 14px;
+    }
+    .event-icon { font-size: 26px; flex-shrink: 0; }
+
+    /* Sponsored widget */
+    .sponsored-card {
+      background: white; border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .sponsored-item { display: flex; gap: 10px; margin-bottom: 12px; }
+    .sponsored-item:last-child { margin-bottom: 0; }
+    .sponsored-thumb {
+      width: 100px; height: 100px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; flex-shrink: 0;
+    }
+    .sponsored-info { flex: 1; }
+    .sponsored-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+    .sponsored-domain { font-size: 12px; color: #65676b; margin-bottom: 4px; }
+    .sponsored-desc { font-size: 13px; color: #1c1e21; line-height: 1.4; }
+
+    /* Contacts widget */
+    .contacts-card {
+      background: white; border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .contact-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 6px; border-radius: 8px;
+      cursor: pointer; font-size: 14px; font-weight: 500;
+      transition: background 0.15s;
+    }
+    .contact-item:hover { background: #f0f2f5; }
+    .contact-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; position: relative; flex-shrink: 0;
+    }
+    .status-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid white;
+    }
+    .status-dot.online { background: #31a24c; }
+    .status-dot.offline { background: #bcc0c4; }
+    .contact-name { flex: 1; }
+    .contact-detail { font-size: 12px; color: #65676b; font-weight: 400; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #bcc0c4; border-radius: 4px; }
+
+    /* ── RESPONSIVE hide sidebars if narrow ── */
+    @media (max-width: 1050px) { .sidebar-right { display: none; } }
+    @media (max-width: 750px) { .sidebar-left { display: none; } .feed { max-width: 100%; } }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">sdrbook</div>
+    <label class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Search SDR-book…" readonly>
+    </label>
+  </div>
+
+  <nav class="topbar-nav">
+    <button class="nav-btn active">
+      <span class="icon">🏠</span>Home
+    </button>
+    <button class="nav-btn">
+      <span class="icon">🎬</span>Pipeline TV
+    </button>
+    <button class="nav-btn">
+      <span class="icon">👥</span>Groups
+    </button>
+    <button class="nav-btn">
+      <span class="icon">🎮</span>Quota Games
+    </button>
+    <button class="nav-btn">
+      <span class="icon">📡</span>Live
+    </button>
+  </nav>
+
+  <div class="topbar-right">
+    <button class="hdr-btn" title="Create something we'll never use">➕</button>
+    <button class="hdr-btn" title="Messenger (they're all follow-ups)">
+      💬
+      <span class="hdr-badge">12</span>
+    </button>
+    <button class="hdr-btn" title="Notifications (mostly pipeline alerts)">
+      🔔
+      <span class="hdr-badge">99+</span>
+    </button>
+    <button class="hdr-btn" title="Help (you're on your own)">❓</button>
+    <button class="user-chip">
+      <div class="user-chip-avatar">🤖</div>
+      Sales Auto
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════ LAYOUT ══════════════════ -->
+<div class="layout">
+
+  <!-- ═══ LEFT SIDEBAR ═══ -->
+  <aside class="sidebar-left">
+    <a class="profile-link" href="#">
+      <div class="profile-avatar">🤖</div>
+      <span class="profile-name">Sales Automation</span>
+    </a>
+
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#e7f3ff">📰</div> News Feed</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#fce8ff">💌</div> DM a Prospect (jk)</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#fff3e0">📺</div> Watch Pipeline Drain</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#e8f5e9">🛒</div> Sell Your Old Quota</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#fff8e1">⚡</div> Instant Objections</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#fce4ec">🔥</div> Burning Targets</a>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Your Groups</div>
+
+    <a class="sb-link" href="#">
+      <div class="sb-icon" style="background:#e8eaf6">📊</div>
+      Excel Die-Hards Anonymous
+      <span class="sb-badge">5</span>
+    </a>
+    <a class="sb-link" href="#">
+      <div class="sb-icon" style="background:#e0f7fa">✍️</div>
+      Cold Email Poetry Collective
+    </a>
+    <a class="sb-link" href="#">
+      <div class="sb-icon" style="background:#fce4ec">😭</div>
+      SDRs Who've Never Hit Quota
+      <span class="sb-badge">3</span>
+    </a>
+    <a class="sb-link" href="#">
+      <div class="sb-icon" style="background:#f3e5f5">🔄</div>
+      "Just Circling Back" Support
+    </a>
+    <a class="sb-link" href="#">
+      <div class="sb-icon" style="background:#e8f5e9">🕵️</div>
+      LinkedIn Lurkers United
+    </a>
+    <a class="sb-link" href="#">
+      <div class="sb-icon" style="background:#fff3e0">☕</div>
+      Post-Pipeline Review Therapy
+    </a>
+
+    <div class="see-more-btn">
+      <div class="see-more-chevron">▾</div>
+      See more
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Shortcuts</div>
+
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#fce8e8">🎯</div> My Pipe Dream Pipeline</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#e8eeff">📋</div> That One Spreadsheet™</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#f0ffe8">🤞</div> End-of-Quarter Miracles</a>
+    <a class="sb-link" href="#"><div class="sb-icon" style="background:#e8f8ff">💆</div> Post-Demo Cool-Down Room</a>
+  </aside>
+
+  <!-- ═══ CENTER FEED ═══ -->
+  <main class="feed">
+
+    <!-- Create post box -->
+    <div class="create-post">
+      <div class="create-top">
+        <div class="mini-avatar">🤖</div>
+        <div class="create-input-fake">What initiative is keeping you up at night, SDR?</div>
+      </div>
+      <div class="create-divider"></div>
+      <div class="create-actions">
+        <div class="create-action">🎬 Live Video</div>
+        <div class="create-action">🖼️ Photo/Video</div>
+        <div class="create-action">😊 Feeling/Quota</div>
+      </div>
+    </div>
+
+    <!-- ── THE POST ── -->
+    <div class="post-card">
+
+      <div class="post-header">
+        <div class="post-header-left">
+          <div class="post-avatar" style="background:linear-gradient(135deg,#4267B2,#1d3461)">🤖</div>
+          <div>
+            <div class="post-author">Sales Automation</div>
+            <div class="post-meta">
+              Just now <span class="dot">•</span> 🌐
+            </div>
+          </div>
+        </div>
+        <div class="post-more">···</div>
+      </div>
+
+      <div class="post-text">You won't believe what just dropped. 👀
+
+We've been sitting on this for MONTHS and honestly?? We're not sorry. The Cohesion Dashboard just went live and we NEED you to stop what you're doing RIGHT NOW.
+
+Your entire pipeline view will never be the same. We're genuinely not being dramatic about this. Like, at all. 👇</div>
+
+      <!-- BuzzFeed thumbnail + link card -->
+      <a class="link-card" href="https://chrismockford.github.io/cohesion-dashboard/" target="_blank">
+        <!-- SVG Thumbnail -->
+        <svg class="link-card-img" viewBox="0 0 600 314" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="0.3" y2="1">
+              <stop offset="0%" stop-color="#0d0b2e"/>
+              <stop offset="100%" stop-color="#1f0a3d"/>
+            </linearGradient>
+            <linearGradient id="bar-blue" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#0072ff"/>
+              <stop offset="100%" stop-color="#00c6ff"/>
+            </linearGradient>
+            <linearGradient id="bar-green" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#00b09b"/>
+              <stop offset="100%" stop-color="#39ff14"/>
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="9" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="shadow-text">
+              <feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="rgba(0,0,0,0.9)"/>
+            </filter>
+          </defs>
+
+          <!-- Background -->
+          <rect width="600" height="314" fill="url(#bg)"/>
+
+          <!-- Subtle star field -->
+          <circle cx="42" cy="28" r="1.2" fill="white" opacity="0.5"/>
+          <circle cx="115" cy="18" r="0.8" fill="white" opacity="0.4"/>
+          <circle cx="198" cy="42" r="1.5" fill="white" opacity="0.4"/>
+          <circle cx="270" cy="22" r="1" fill="white" opacity="0.5"/>
+          <circle cx="305" cy="80" r="0.8" fill="white" opacity="0.3"/>
+          <circle cx="60" cy="200" r="1" fill="white" opacity="0.3"/>
+          <circle cx="22" cy="260" r="1.5" fill="white" opacity="0.25"/>
+          <circle cx="268" cy="290" r="1" fill="white" opacity="0.35"/>
+          <circle cx="560" cy="80" r="1.2" fill="white" opacity="0.4"/>
+          <circle cx="582" cy="180" r="0.8" fill="white" opacity="0.3"/>
+
+          <!-- ── BAR CHART (right side) ── -->
+          <line x1="310" y1="272" x2="590" y2="272" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+
+          <rect x="322" y="236" width="30" height="36" fill="url(#bar-blue)" rx="3" filter="url(#glow)"/>
+          <rect x="362" y="204" width="30" height="68" fill="url(#bar-blue)" rx="3" filter="url(#glow)"/>
+          <rect x="402" y="164" width="30" height="108" fill="url(#bar-blue)" rx="3" filter="url(#glow)"/>
+          <rect x="442" y="116" width="30" height="156" fill="url(#bar-green)" rx="3" filter="url(#glow)"/>
+          <!-- Last bar: rockets off screen -->
+          <rect x="482" y="-30" width="30" height="302" fill="#39ff14" rx="3" filter="url(#glow2)" opacity="0.92"/>
+          <!-- Glow halo at top of last bar -->
+          <ellipse cx="497" cy="0" rx="30" ry="18" fill="rgba(57,255,20,0.25)" filter="url(#glow2)"/>
+
+          <!-- Floating labels -->
+          <text x="324" y="228" font-family="monospace" font-size="10" fill="rgba(0,198,255,0.85)">+82%</text>
+          <text x="404" y="155" font-family="monospace" font-size="10" fill="rgba(0,198,255,0.85)">+214%</text>
+          <text x="444" y="107" font-family="monospace" font-size="11" fill="rgba(57,255,20,0.95)" filter="url(#glow)">🚀 +891%</text>
+          <text x="477" y="45" font-family="monospace" font-size="13" fill="#39ff14" font-weight="bold" filter="url(#glow)">∞ ROI</text>
+
+          <!-- ── PERSON (left side) ── -->
+          <!-- Ambient glow around person -->
+          <ellipse cx="145" cy="195" rx="78" ry="72" fill="rgba(255,180,50,0.06)"/>
+
+          <!-- Legs -->
+          <line x1="133" y1="252" x2="114" y2="295" stroke="#1a1a5e" stroke-width="13" stroke-linecap="round"/>
+          <line x1="157" y1="252" x2="174" y2="295" stroke="#1a1a5e" stroke-width="13" stroke-linecap="round"/>
+
+          <!-- Body (blue shirt) -->
+          <rect x="116" y="186" width="58" height="68" rx="10" fill="#3a5fc8"/>
+          <!-- Shirt highlight -->
+          <rect x="130" y="190" width="6" height="30" rx="3" fill="rgba(255,255,255,0.15)"/>
+
+          <!-- Left arm flung up-left -->
+          <line x1="116" y1="202" x2="58" y2="148" stroke="#f5c66f" stroke-width="13" stroke-linecap="round"/>
+          <circle cx="52" cy="142" r="11" fill="#f5c66f"/>
+
+          <!-- Right arm flung up-right -->
+          <line x1="174" y1="202" x2="240" y2="150" stroke="#f5c66f" stroke-width="13" stroke-linecap="round"/>
+          <circle cx="246" cy="145" r="11" fill="#f5c66f"/>
+
+          <!-- Neck -->
+          <rect x="137" y="165" width="16" height="24" rx="4" fill="#f5c66f"/>
+
+          <!-- Head -->
+          <ellipse cx="145" cy="152" rx="36" ry="34" fill="#f5c66f"/>
+
+          <!-- Hair -->
+          <ellipse cx="145" cy="120" rx="32" ry="14" fill="#3d2b1f"/>
+          <rect x="113" y="120" width="64" height="18" fill="#f5c66f"/>
+
+          <!-- Shocked wide-open eyes -->
+          <circle cx="133" cy="149" r="11" fill="white"/>
+          <circle cx="157" cy="149" r="11" fill="white"/>
+          <circle cx="135" cy="151" r="6" fill="#1a1a2e"/>
+          <circle cx="159" cy="151" r="6" fill="#1a1a2e"/>
+          <!-- Eye shine -->
+          <circle cx="137" cy="148" r="2.5" fill="white"/>
+          <circle cx="161" cy="148" r="2.5" fill="white"/>
+
+          <!-- Raised eyebrows -->
+          <path d="M122 136 Q133 130 144 135" stroke="#3d2b1f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M146 135 Q157 130 168 136" stroke="#3d2b1f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+          <!-- Open O-mouth (shocked) -->
+          <ellipse cx="145" cy="169" rx="9" ry="11" fill="#c0392b"/>
+          <ellipse cx="145" cy="172" rx="6" ry="7" fill="#8b1a10"/>
+
+          <!-- Sweat drops -->
+          <path d="M180 136 Q185 128 183 143 Q179 146 176 143 Q173 136 180 136" fill="#87ceeb" opacity="0.92"/>
+          <path d="M108 150 Q102 142 104 157 Q108 160 111 157 Q115 150 108 150" fill="#87ceeb" opacity="0.8"/>
+
+          <!-- Shock lines / speed lines -->
+          <line x1="86" y1="118" x2="98" y2="130" stroke="#FFD700" stroke-width="2" opacity="0.85" stroke-linecap="round"/>
+          <line x1="82" y1="126" x2="96" y2="133" stroke="#FFD700" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+          <line x1="204" y1="118" x2="193" y2="130" stroke="#FFD700" stroke-width="2" opacity="0.85" stroke-linecap="round"/>
+          <line x1="210" y1="128" x2="196" y2="133" stroke="#FFD700" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+
+          <!-- Floating reaction emojis -->
+          <text x="50" y="122" font-size="20">⭐</text>
+          <text x="222" y="115" font-size="18">✨</text>
+          <text x="95" y="102" font-size="15">💫</text>
+          <text x="194" y="95" font-size="15">💥</text>
+
+          <!-- ! marks -->
+          <text x="60" y="107" font-family="Arial Black,Arial" font-size="44" fill="#FF6B35" font-weight="900" opacity="0.95" filter="url(#glow)">!</text>
+          <text x="212" y="107" font-family="Arial Black,Arial" font-size="44" fill="#FF6B35" font-weight="900" opacity="0.95" filter="url(#glow)">!</text>
+
+          <!-- ── TOP BREAKING NEWS BANNER ── -->
+          <rect x="0" y="0" width="600" height="52" fill="rgba(0,0,0,0.88)"/>
+          <rect x="0" y="0" width="158" height="52" fill="#c0392b"/>
+          <text x="12" y="21" font-family="Arial Black,Arial" font-size="13" font-weight="900" fill="white" letter-spacing="2">🚨 BREAKING</text>
+          <text x="12" y="40" font-family="Arial,sans-serif" font-size="10" fill="rgba(255,255,255,0.9)" letter-spacing="1">SALES AUTOMATION NEWS</text>
+          <text x="172" y="21" font-family="Arial Black,Arial" font-size="12.5" font-weight="900" fill="#FFD700" filter="url(#shadow-text)">LOCAL SDR HAS FULL MELTDOWN ON THE FEED</text>
+          <text x="172" y="40" font-family="Arial,sans-serif" font-size="11" fill="rgba(255,255,255,0.85)">after discovering a dashboard that "just does everything" · sources confirm it does, in fact, do everything</text>
+
+          <!-- ── BOTTOM CALL-TO-ACTION BANNER ── -->
+          <rect x="0" y="272" width="600" height="42" fill="rgba(0,0,0,0.92)"/>
+          <text x="14" y="290" font-family="Arial Black,Arial" font-size="13" font-weight="900" fill="#39ff14" filter="url(#glow)">👇 CLICK. YOU NEED TO SEE THIS DASHBOARD RIGHT NOW.</text>
+          <text x="14" y="308" font-family="Arial,sans-serif" font-size="10" fill="rgba(255,255,255,0.65)">Analysts baffled. Pipeline thriving. Excel spreadsheets reportedly "devastated." No further comment at this time.</text>
+        </svg>
+
+        <div class="link-card-body">
+          <div class="link-card-domain">chrismockford.github.io</div>
+          <div class="link-card-title">The Cohesion Dashboard Just Changed Pipeline Management Forever And We're Not Sorry</div>
+          <div class="link-card-desc">Everything you need to see. All in one place. Your eyes may water. That's completely normal.</div>
+        </div>
+      </a>
+
+      <!-- Stats row -->
+      <div class="post-stats">
+        <div class="post-stats-left">
+          <div class="reaction-stack">
+            <div class="reaction-circle" style="background:#4267B2;font-size:12px">👍</div>
+            <div class="reaction-circle" style="background:#f33e58;font-size:12px">❤️</div>
+            <div class="reaction-circle" style="background:#f7b125;font-size:12px">😮</div>
+          </div>
+          <span>847</span>
+        </div>
+        <div class="post-stats-right">
+          <span>203 Comments</span>
+          <span>91 Shares</span>
+        </div>
+      </div>
+
+      <div class="post-divider"></div>
+
+      <!-- Action buttons -->
+      <div class="post-actions">
+        <button class="action-btn" id="like-btn" onclick="toggleLike(this)">
+          <div class="reaction-picker">
+            <div class="r-emoji">👍<div class="r-label">Like</div></div>
+            <div class="r-emoji">❤️<div class="r-label">Love</div></div>
+            <div class="r-emoji">😂<div class="r-label">Haha</div></div>
+            <div class="r-emoji">😮<div class="r-label">Wow</div></div>
+            <div class="r-emoji">😢<div class="r-label">Sad</div></div>
+            <div class="r-emoji">😡<div class="r-label">Angry</div></div>
+          </div>
+          <span class="btn-icon" id="like-icon">👍</span>
+          <span id="like-label">Like</span>
+        </button>
+        <button class="action-btn">
+          <span class="btn-icon">💬</span> Comment
+        </button>
+        <button class="action-btn">
+          <span class="btn-icon">↗️</span> Share
+        </button>
+      </div>
+
+      <div class="post-divider"></div>
+
+      <!-- ── COMMENTS ── -->
+      <div class="comments-section">
+
+        <!-- Comment 1 -->
+        <div class="comment-row">
+          <div class="comment-avatar" style="background:#2e7d32">💰</div>
+          <div class="comment-body">
+            <div class="comment-bubble">
+              <span class="comment-name">Dave from Revenue Ops</span>
+              <span class="comment-text">My manager asked me to build something like this THREE quarters ago. Sending him this link with absolutely zero context. No note. No subject line. Just the link. Watching his Teams status closely. 👁️</span>
+            </div>
+            <div class="comment-meta">
+              <span class="comment-time">8 mins ago</span>
+              <span class="comment-meta-btn">Like</span>
+              <span class="comment-meta-btn">Reply</span>
+            </div>
+            <div class="comment-reaction-chip">😂 89</div>
+          </div>
+        </div>
+
+        <!-- Comment 2 -->
+        <div class="comment-row">
+          <div class="comment-avatar" style="background:#c62828">😤</div>
+          <div class="comment-body">
+            <div class="comment-bubble">
+              <span class="comment-name">Jake Morrison</span>
+              <span class="comment-text">WAIT. I have been doing this manually. In a Google Sheet. For EIGHT MONTHS. I have a colour-coded tab system. There's a legend. There's a README tab. EIGHT. MONTHS. 😭😭😭</span>
+            </div>
+            <div class="comment-meta">
+              <span class="comment-time">5 mins ago</span>
+              <span class="comment-meta-btn">Like</span>
+              <span class="comment-meta-btn">Reply</span>
+            </div>
+            <div class="comment-reaction-chip">😭 156</div>
+          </div>
+        </div>
+
+        <!-- Comment 3 with replies -->
+        <div class="comment-row">
+          <div class="comment-avatar" style="background:#6a1b9a">⚡</div>
+          <div class="comment-body">
+            <div class="comment-bubble">
+              <span class="comment-name">Brittany Chen</span>
+              <span class="comment-text"><strong>Tyler Nguyen</strong> Tyler. TYLER. Drop everything. I'm tagging you in this. Drop. The. Call. Right now.</span>
+            </div>
+            <div class="comment-meta">
+              <span class="comment-time">4 mins ago</span>
+              <span class="comment-meta-btn">Like</span>
+              <span class="comment-meta-btn">Reply</span>
+            </div>
+            <div class="comment-reaction-chip">😂 47</div>
+            <!-- Replies -->
+            <div class="replies">
+              <div class="comment-row">
+                <div class="comment-avatar" style="background:#546e7a">😐</div>
+                <div class="comment-body">
+                  <div class="comment-bubble">
+                    <span class="comment-name">Tyler Nguyen</span>
+                    <span class="comment-text">...I'm in a call with a prospect right now Brittany</span>
+                  </div>
+                  <div class="comment-meta">
+                    <span class="comment-time">3 mins ago</span>
+                    <span class="comment-meta-btn">Like</span>
+                    <span class="comment-meta-btn">Reply</span>
+                  </div>
+                </div>
+              </div>
+              <div class="comment-row">
+                <div class="comment-avatar" style="background:#6a1b9a">⚡</div>
+                <div class="comment-body">
+                  <div class="comment-bubble">
+                    <span class="comment-name">Brittany Chen</span>
+                    <span class="comment-text">LEAVE. THE. CALL. 📲</span>
+                  </div>
+                  <div class="comment-meta">
+                    <span class="comment-time">3 mins ago</span>
+                    <span class="comment-meta-btn">Like</span>
+                    <span class="comment-meta-btn">Reply</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment 4 with SA reply -->
+        <div class="comment-row">
+          <div class="comment-avatar" style="background:#1565c0">👔</div>
+          <div class="comment-body">
+            <div class="comment-bubble">
+              <span class="comment-name">SDR Manager Tom</span>
+              <span class="comment-text">ok but does it sync with Salesforce 🤔</span>
+            </div>
+            <div class="comment-meta">
+              <span class="comment-time">2 mins ago</span>
+              <span class="comment-meta-btn">Like</span>
+              <span class="comment-meta-btn">Reply</span>
+            </div>
+            <div class="comment-reaction-chip">🙄 12</div>
+            <!-- SA reply -->
+            <div class="replies">
+              <div class="comment-row">
+                <div class="comment-avatar" style="background:linear-gradient(135deg,#4267B2,#1d3461)">🤖</div>
+                <div class="comment-body">
+                  <div class="comment-bubble">
+                    <span class="comment-name">Sales Automation</span>
+                    <span class="comment-text">Does it sync with Salesforce… DOES IT SYNC WITH SALESFORCE… Tom. Tom please just click the link. We're begging. Tom. 💀</span>
+                  </div>
+                  <div class="comment-meta">
+                    <span class="comment-time">2 mins ago</span>
+                    <span class="comment-meta-btn">Like</span>
+                    <span class="comment-meta-btn">Reply</span>
+                  </div>
+                  <div class="comment-reaction-chip">💀 203</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment 5 -->
+        <div class="comment-row">
+          <div class="comment-avatar" style="background:#e65100">🏆</div>
+          <div class="comment-body">
+            <div class="comment-bubble">
+              <span class="comment-name">Alex Reeves</span>
+              <span class="comment-text">I showed this to my VP during pipeline review. Got a standing ovation. In a Zoom call. With cameras off. Someone unmuted specifically to clap. Unmuted. To. Clap.</span>
+            </div>
+            <div class="comment-meta">
+              <span class="comment-time">Just now</span>
+              <span class="comment-meta-btn">Like</span>
+              <span class="comment-meta-btn">Reply</span>
+            </div>
+            <div class="comment-reaction-chip">👏 312</div>
+          </div>
+        </div>
+
+        <!-- Comment input -->
+        <div class="comment-input-row">
+          <div class="mini-avatar" style="width:32px;height:32px;font-size:16px">🤖</div>
+          <div class="comment-input-fake">Write a comment…</div>
+        </div>
+
+      </div>
+    </div>
+    <!-- end .post-card -->
+
+  </main>
+  <!-- end .feed -->
+
+  <!-- ═══ RIGHT SIDEBAR ═══ -->
+  <aside class="sidebar-right">
+
+    <!-- Stories -->
+    <div class="widget">
+      <div class="widget-header">
+        <span class="widget-title">Stories</span>
+        <span class="widget-link">Archive · Settings</span>
+      </div>
+      <div class="stories-grid">
+        <div class="story-card add-story">
+          <div class="story-add-circle">+</div>
+          <div class="story-add-label">Add to Story</div>
+        </div>
+        <div class="story-card" style="background:linear-gradient(160deg,#667eea,#764ba2)">
+          <div class="story-avatar-pin">📊</div>
+          <div class="story-name-label">The CRM<br><span style="font-weight:400;font-size:11px">10 mins ago</span></div>
+        </div>
+        <div class="story-card" style="background:linear-gradient(160deg,#f093fb,#f5576c)">
+          <div class="story-avatar-pin">🎯</div>
+          <div class="story-name-label">Quota<br><span style="font-weight:400;font-size:11px">Q1 (rip)</span></div>
+        </div>
+        <div class="story-card" style="background:linear-gradient(160deg,#4facfe,#00f2fe)">
+          <div class="story-avatar-pin">📧</div>
+          <div class="story-name-label">Cold Email<br><span style="font-weight:400;font-size:11px">Bounced</span></div>
+        </div>
+        <div class="story-card" style="background:linear-gradient(160deg,#43e97b,#38f9d7)">
+          <div class="story-avatar-pin">📞</div>
+          <div class="story-name-label">Discovery<br><span style="font-weight:400;font-size:11px">No-showed</span></div>
+        </div>
+        <div class="story-card" style="background:linear-gradient(160deg,#fa709a,#fee140)">
+          <div class="story-avatar-pin">📅</div>
+          <div class="story-name-label">Pipe Review<br><span style="font-weight:400;font-size:11px">Tomorrow 😰</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events / Birthdays -->
+    <div class="events-card">
+      <div class="event-row">
+        <div class="event-icon">📅</div>
+        <div><strong>Pipeline Review</strong> is on Friday.<br><span style="color:#65676b">Please come prepared this time. We mean it. 🙏</span></div>
+      </div>
+      <div class="event-row" style="margin-top:8px">
+        <div class="event-icon">🎂</div>
+        <div><strong>Quota</strong>'s birthday is today.<br><span style="color:#65676b">It passed away in Q3. Never forget. 🕯️</span></div>
+      </div>
+    </div>
+
+    <!-- Sponsored -->
+    <div class="sponsored-card">
+      <div class="widget-header" style="margin-bottom:10px">
+        <span class="widget-title">Sponsored</span>
+        <span class="widget-link">Create Ad</span>
+      </div>
+
+      <div class="sponsored-item">
+        <div class="sponsored-thumb" style="background:linear-gradient(135deg,#3a1c71,#d76d77,#ffaf7b)">☕</div>
+        <div class="sponsored-info">
+          <div class="sponsored-domain">cryingintopipeline.com · Sponsored</div>
+          <div class="sponsored-title">Tears of Missed Quota Coffee Co.</div>
+          <div class="sponsored-desc">The #1 coffee for SDRs in Q4. Each bag contains a card that says "pipeline is a lagging indicator." Free shipping over $47 ACV.</div>
+        </div>
+      </div>
+
+      <div class="sponsored-item" style="margin-top:14px; padding-top:14px; border-top:1px solid #f0f2f5">
+        <div class="sponsored-thumb" style="background:linear-gradient(135deg,#11998e,#38ef7d)">📱</div>
+        <div class="sponsored-info">
+          <div class="sponsored-domain">anothercrm.io · Sponsored</div>
+          <div class="sponsored-title">CRM Pro Ultra Max Plus™</div>
+          <div class="sponsored-desc">Like your current CRM but with 40% more mandatory fields. Now with AI that suggests follow-up emails you'll still never send.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contacts -->
+    <div class="contacts-card">
+      <div class="widget-header" style="margin-bottom:8px">
+        <span class="widget-title">Contacts</span>
+        <div class="widget-icons">
+          <div class="widget-icon-btn">📹</div>
+          <div class="widget-icon-btn">🔍</div>
+          <div class="widget-icon-btn">···</div>
+        </div>
+      </div>
+
+      <div id="contacts-list"></div>
+    </div>
+
+  </aside>
+
+</div><!-- end .layout -->
+
+<script>
+  /* ── Like button toggle ── */
+  function toggleLike(btn) {
+    const isLiked = btn.classList.toggle('is-liked');
+    const icon = btn.querySelector('#like-icon');
+    const label = btn.querySelector('#like-label');
+    if (isLiked) {
+      icon.textContent = '👍';
+      icon.style.filter = 'none';
+      label.textContent = 'Like';
+      label.style.color = '#4267B2';
+    } else {
+      icon.textContent = '👍';
+      icon.style.filter = 'grayscale(1)';
+      label.textContent = 'Like';
+      label.style.color = '';
+    }
+  }
+
+  /* ── Render contacts ── */
+  const contacts = [
+    { name: "The CRM",            emoji: "🤖", color: "#3949ab", status: "online",  detail: "" },
+    { name: "Your SDR Manager",   emoji: "👔", color: "#1565c0", status: "online",  detail: "Active now 👀" },
+    { name: "Q4 Pipeline",        emoji: "📊", color: "#2e7d32", status: "online",  detail: "Surprisingly healthy" },
+    { name: "LinkedIn Inbox",     emoji: "💼", color: "#0277bd", status: "online",  detail: "847 unread" },
+    { name: "Quota Attainment",   emoji: "🎯", color: "#b71c1c", status: "offline", detail: "Last seen: Q1" },
+    { name: "The Spreadsheet",    emoji: "📋", color: "#4e342e", status: "offline", detail: "Last seen: 2019" },
+    { name: "Discovery Call",     emoji: "📞", color: "#546e7a", status: "offline", detail: "No-showed" },
+    { name: "Monday Meeting",     emoji: "😰", color: "#37474f", status: "offline", detail: "5 days ago" },
+    { name: "End of Quarter",     emoji: "🔥", color: "#e65100", status: "online",  detail: "Coming fast" },
+    { name: "Cold Email Template",emoji: "✍️", color: "#4a148c", status: "offline", detail: "Unread by everyone" },
+  ];
+
+  const list = document.getElementById('contacts-list');
+  contacts.forEach(c => {
+    list.innerHTML += `
+      <div class="contact-item">
+        <div class="contact-avatar" style="background:${c.color}">
+          ${c.emoji}
+          <div class="status-dot ${c.status}"></div>
+        </div>
+        <span class="contact-name">${c.name}</span>
+        ${c.detail ? `<span class="contact-detail">${c.detail}</span>` : ''}
+      </div>`;
+  });
+
+  /* ── Nav button active state ── */
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
